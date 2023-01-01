@@ -6,6 +6,7 @@ String passwords[5];
 String mw;
 int x;
 int m;
+int u_addr=0,p_addr=0;
 void switch1On(){
  digitalWrite(2,HIGH);
  panel();
@@ -48,19 +49,25 @@ void switch4Off()
 void login_check()
 {
   Serial.println("q");
- for(int j=0;j<5;j++)
- {
- Serial.print(usernames[j]);
- Serial.println(passwords[j]);
- }
+ //for(int j=0;j<64;j=+8)
+ //{
+ //Serial.print("username: ");
+ //Serial.println(read(j));
+ //}
+// for(int j=100;j<164;j=+8)
+// {
+// Serial.print("password: ");
+// Serial.println(read(j));
+ //}
+ 
 
  if(server.hasArg("USERNAME") and server.hasArg ("PASSWORD"))
  {
   bool found=false;
-        for(int i=0;i<65;i+8){
-        for(int z=66;z<109;i+8){
-        
- if(server.arg("USERNAME")==EEPROM.read(i) and server.arg("PASSWORD")==EEPROM.read(z)
+
+ //for(int i=0;i<64;i=+8)
+ //{       
+ if(server.arg("USERNAME")==read(100) and server.arg("PASSWORD")==read(130))
  {
   found=true;
     mw="user login";
@@ -69,8 +76,8 @@ void login_check()
  server.sendHeader("Set-Cookie", "LOGIN=1");
  server.send(301);
  }
-        }
-        }
+        //}
+ 
  if(found==false)
   mw="user login wrong";
  server.sendHeader("Location", "/");
@@ -189,20 +196,16 @@ server.send(301);
  {
  if( server.arg("PASSWORD1")==server.arg("re_PASSWORD") )
  {
-    mw=" user rigester ";
-  //if (x>70)
-   // x=0;  
-  //if (m>150)
-   // m=65;
-write(0,server.arg("USERNAME1"));
-write(66,server.arg("PASSWORD1"));
-
-  //x=x+8;
- // m=m+8;
-
-
-  
- 
+    mw=" user rigestered ";
+//   if(u_addr>62)
+//   u_addr=0;
+//   u_addr=u_addr+8;
+//   if(p_addr>162)
+//   u_addr=100;
+//   u_addr=u_addr+8;
+   
+write(100,server.arg("USERNAME1"));
+write(130,server.arg("PASSWORD1"));
  server.sendHeader("Location", "/panel");
  server.send(301);
  }
@@ -232,6 +235,25 @@ write(66,server.arg("PASSWORD1"));
 
 
     }
+      void ssid(){
+ String ssid = "<!DOCTYPE html>";
+ ssid +="<head><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Controler</title>";
+ ssid +="<style>html{min-height: 100%; background: rgb(0,205,210);background: radial-gradient(circle, rgba(0,205,210,1) 0%, rgba(10,89,232,1) 87%);}.login {border: 1px solid red;background-color:transparent;padding:10px;color:#ff0000;border-radius:10px;font-size: 1em;text-decoration:none;}.login:hover {background-color:red;color:#fff;text-decoration:none;}</style>";
+ ssid +="</head><body><form action='/ssid' method='POST'><p align ='center' style='font-size:160%'><b> username_ssid: <input type='text' name='user' placeholder='username' required></b></p><p align ='center' style='font-size:160%'><b> password_ssid: <input type='text' name='pass' placeholder='password' required></b></p><br><p align ='center' style='font-size:160%'>";
+ ssid +="<input class='login'  type='submit' name='scurity2' value='enter'></p>";
+ if (mw!="")
+ {
+ ssid +="<script>alert('";
+ ssid +=mw;
+ ssid +="')</script>";
+ mw="";
+ }
+ ssid +="</form><br></body></html>";
+
+  server.send(200, "text/html", ssid);
+
+
+    }
       void scurity_1(){
         
  if(server.hasArg("scurity_key"))
@@ -254,6 +276,23 @@ write(66,server.arg("PASSWORD1"));
  }
  
  }
+       void ssid_1(){
+        
+ if(server.hasArg("user") and server.hasArg("pass"))
+ {
+
+write(200,server.arg("user"));
+write(220,server.arg("pass"));
+  mw="ssid right";
+ server.sendHeader("Location", "/rigester");
+ server.sendHeader("Cache-Control","no-cache");
+ server.sendHeader("Set-Cookie", "sequrity=1");
+ server.send(301);
+
+
+ }
+ 
+ }
 void setup()
 {
  pinMode(2, OUTPUT); 
@@ -261,7 +300,7 @@ void setup()
  pinMode(14, OUTPUT); 
  pinMode(16, OUTPUT); 
  WiFi.mode(WIFI_AP); 
- WiFi.softAP("wifi access point to", "admin1234");
+ WiFi.softAP(read(200),read(220));
  server.on("/", home);
  server.on("/panel", panel);
  server.on("/login_check", login_check);
@@ -313,6 +352,7 @@ String read(int address)
 }
 void loop() {
  server.handleClient();
+
 }
 
 
